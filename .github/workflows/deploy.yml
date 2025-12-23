@@ -1,0 +1,27 @@
+name: Deploy to self-hosted runner
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, linux, robin-ubuntu-1]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx (optional)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t test123:latest .
+
+      - name: Stop existing container (if any)
+        run: |
+          docker rm -f test123 || true
+
+      - name: Run container
+        run: |
+          docker run -d --name test123 -p 8000:8000 test123:latest
